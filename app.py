@@ -2,20 +2,12 @@ from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from config import app, db, bcrypt, login_manager
 from models import User, Task
 
-# Configuração do DB
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
-login_manager.login_message_category = 'info'
-
 # EndPoints
+
+# USER
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -53,3 +45,39 @@ def logout():
 def tasks():
     user_tasks = Task.query.filter_by(owner=current_user)
     return render_template('tasks.html', tasks=user_tasks)
+
+# TASKS
+
+@app.route("/create_task", methods=['GET', 'POST'])
+@login_required
+def create_task():
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        task = Task(title=title, content=content, owner=current_user)
+        db.session.add(task)
+        db.session.commit()
+        flash('Tarefa criada com sucesso!', 'success')
+        return redirect(url_for('tasks'))
+    return render_template('create_task.html')
+
+@app.route("/update_task/<int:task_id>", methods=['GET', 'POST'])
+@login_required
+def update_task(task_id):
+    task = Task.query.get(task_id)
+    if request.method == 'POST':
+        task.title = request.form['title']
+        task.content = request.form['content']
+        db.session.commit()
+        flash('Tarefa atualizada com sucesso!', 'success')
+        return redirect(url_for('tasks'))
+    return render_template('update_task.html', task=task)
+
+@app.route("/delete_task/<int:task_id>", methods=['GET', 'POST'])
+@login_required
+def delete_task(task_id):
+    task = Task.query.get(task_id)
+    db.session.delete(task)
+    db.session.commit()
+    flash('Tarefa deletada com sucesso!', 'success')
+    return redirect(url_for('tasks'))
