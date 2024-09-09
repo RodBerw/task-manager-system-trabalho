@@ -1,5 +1,6 @@
 from flask import render_template, redirect, url_for
 from config import app
+from models import User, Task
 
 @app.route("/")
 def home():
