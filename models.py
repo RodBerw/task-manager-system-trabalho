@@ -1,13 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from app import db, login_manager
+from config import db
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-def load_task(task_id):
-    return Task.query.get(int(task_id))
+# @login_manager.user_loader
+# def load_task(task_id):
+#     return Task.query.get(int(task_id))
 
 
 class User(db.Model, UserMixin):
@@ -17,10 +14,10 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(60), nullable=False)
     tasks = db.relationship('Task', backref='owner', lazy=True)
 
-class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='Pendente')
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    assigned_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+# class Task(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     title = db.Column(db.String(100), nullable=False)
+#     content = db.Column(db.Text, nullable=False)
+#     status = db.Column(db.String(20), nullable=False, default='Pendente')
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+#     assigned_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)

@@ -5,9 +5,11 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from config import app, db, bcrypt, login_manager
 from models import User, Task
 
-# EndPoints
-
 # USER
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -35,16 +37,16 @@ def login():
             flash('Login falhou. Verifique suas credenciais.', 'danger')
     return render_template('login.html')
 
-@app.route("/logout")
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
+# @app.route("/logout")
+# def logout():
+#     logout_user()
+#     return redirect(url_for('login'))
 
-@app.route("/tasks")
-@login_required
-def tasks():
-    user_tasks = Task.query.filter_by(owner=current_user)
-    return render_template('tasks.html', tasks=user_tasks)
+# @app.route("/tasks")
+# @login_required
+# def tasks():
+#     user_tasks = Task.query.filter_by(owner=current_user)
+#     return render_template('tasks.html', tasks=user_tasks)
 
 # TASKS
 
