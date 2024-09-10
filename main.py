@@ -1,5 +1,5 @@
 from flask import render_template, redirect, url_for, request
-from config import app
+from config import app, db
 from models import User, Task
 
 @app.route("/")
@@ -12,8 +12,10 @@ def register():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    value = request.args.get('value')
-    return render_template('login.html', value=value)
+    return render_template('login.html')
+
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)
