@@ -49,11 +49,11 @@ def login():
 #     logout_user()
 #     return redirect(url_for('login'))
 
-@app.route("/tasks")
-@login_required
-def tasks():
-    user_tasks = Task.query.filter_by(owner=current_user)
-    return render_template('tasks.html', tasks=user_tasks)
+# @app.route("/tasks")
+# @login_required
+# def tasks():
+#     user_tasks = Task.query.filter_by(owner=current_user)
+#     return render_template('tasks.html', tasks=user_tasks)
 
 # TASKS
 
