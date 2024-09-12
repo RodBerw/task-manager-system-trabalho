@@ -24,6 +24,10 @@
                             {{ form.status.label(class="form-label") }}
                             {{ form.status(class="form-control", value=task.status) }}
                         </div>
+                        <div class="mb-3">
+                            {{ form.assigned_user.label(class="form-label") }}
+                            {{ form.assigned_user(class="form-select") }}
+                        </div>
                         <div class="d-grid">
                             {{ form.submit(class="btn btn-primary") }}
                     </form>

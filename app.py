@@ -54,7 +54,7 @@ def tasks():
         user_tasks = Task.query.filter_by(status=status_filter).all()
     else:
         user_tasks = Task.query.all()
-    users = User.query.all()  # Para carregar os usuários na modal
+    users = User.query.all()
     return render_template('tasks.html', tasks=user_tasks, users=users)
 
 @app.route("/create_task", methods=['GET', 'POST'])
@@ -64,7 +64,8 @@ def create_task():
     if request.method == 'POST':
         title = form.title.data
         content = form.content.data
-        task = Task(title=title, content=content, owner=current_user)
+        assigned_user = form.assigned_user.data
+        task = Task(title=title, content=content, owner=current_user, assigned_user=assigned_user)
         db.session.add(task)
         db.session.commit()
         flash('Task created with success!', 'success')
@@ -80,15 +81,18 @@ def update_task(task_id):
         title = form.title.data
         content = form.content.data
         status = form.status.data
+        assigned_user = form.assigned_user.data
         task.title = title
         task.content = content
         task.status = status
+        task.assigned_user = assigned_user
         db.session.commit()
         flash('Task updated with success!', 'success')
         return redirect(url_for('tasks'))
     form.title.data = task.title
     form.content.data = task.content
     form.status.data = task.status
+    form.assigned_user.data = task.assigned_user
     return render_template('update_task.html', form=form, task=task)
 
 @app.route("/delete_task/<int:task_id>", methods=['GET', 'POST'])
@@ -100,26 +104,6 @@ def delete_task(task_id):
     flash('Task deleted with success!', 'success')
     return redirect(url_for('tasks'))
 
-# Assign Task Route
-@app.route("/assign_task", methods=['POST'])
-@login_required
-def assign_task():
-    task_id = request.form.get('task_id')
-    user_id = request.form.get('user_id')
-    
-    task = Task.query.get(task_id)
-    user = User.query.get(user_id)
-    
-    if task and user:
-        task.assigned_user_id = user.id  # Atribui a tarefa ao novo usuário
-        db.session.commit()
-        flash(f"Task: '{task.title}', assigned to {user.username} with success!", 'success')
-    else:
-        flash('Failed to assign task.', 'danger')
-
-    return redirect(url_for('tasks'))
-
-# Rota para carregar os usuários via JSON (para uso com modal AJAX, se necessário)
 @app.route("/get_users", methods=['GET'])
 @login_required
 def get_users():
