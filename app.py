@@ -4,7 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from config import app, db, bcrypt, login_manager
 from models import User, Task
-from forms import RegisterForm, LoginForm, TaskForm
+from forms import RegisterForm, LoginForm, TaskForm, UpdateTaskForm
 
 @app.route("/")
 def home():
@@ -60,7 +60,11 @@ def login():
 @app.route("/tasks")
 @login_required
 def tasks():
-    user_tasks = Task.query.filter_by(owner=current_user)
+    status_filter = request.args.get('status')
+    if status_filter:
+        user_tasks = Task.query.filter_by(status=status_filter).all()
+    else:
+        user_tasks = Task.query.all()
     return render_template('tasks.html', tasks=user_tasks)
 
 @app.route("/create_task", methods=['GET', 'POST'])
@@ -73,7 +77,7 @@ def create_task():
         task = Task(title=title, content=content, owner=current_user)
         db.session.add(task)
         db.session.commit()
-        flash('Tarefa criada com sucesso!', 'success')
+        flash('Task created with success!', 'success')
         return redirect(url_for('tasks'))
     return render_template('create_task.html', form=form)
 
@@ -81,13 +85,21 @@ def create_task():
 @login_required
 def update_task(task_id):
     task = Task.query.get(task_id)
+    form = UpdateTaskForm()
     if request.method == 'POST':
-        task.title = request.form['title']
-        task.content = request.form['content']
+        title = form.title.data
+        content = form.content.data
+        status = form.status.data
+        task.title = title
+        task.content = content
+        task.status = status
         db.session.commit()
-        flash('Tarefa atualizada com sucesso!', 'success')
+        flash('Task updated with success!', 'success')
         return redirect(url_for('tasks'))
-    return render_template('update_task.html', task=task)
+    form.title.data = task.title
+    form.content.data = task.content
+    form.status.data = task.status
+    return render_template('update_task.html', form=form, task=task)
 
 @app.route("/delete_task/<int:task_id>", methods=['GET', 'POST'])
 @login_required

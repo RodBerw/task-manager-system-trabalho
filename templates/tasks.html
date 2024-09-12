@@ -9,16 +9,29 @@
     <div class="container vh-100 d-flex justify-content-center align-items-center">
         <div class="card p-4" style="width: 100%; max-width: 600px;">
             <h1>Your Tasks</h1>
+            <form method="GET" action="{{ url_for('tasks') }}">
+                <select class="form-select mb-3 w-25" name="status" onchange="this.form.submit()">
+                    <option value="">All tasks</option>
+                    <option value="Pending" {% if request.args.get('status') == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Doing" {% if request.args.get('status') == 'Doing' %}selected{% endif %}>Doing</option>
+                    <option value="Done" {% if request.args.get('status') == 'Done' %}selected{% endif %}>Done</option>
+                </select>
+            </form>
             <ul class="list-group">
                 {% for task in tasks %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5>{{ task.title }}</h5>
-                        <p>{{ task.content }}</p>
-                    </div>
-                    <div>
-                        <a href="{{ url_for('update_task', task_id=task.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-                        <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-sm btn-outline-danger">Excluir</a>
+                    <div class="card w-100">
+                        <div class="card-header">
+                            <h5>{{ task.title }}</h5>
+                            <p">{{ task.status }}</p>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ task.content }}</p>
+                            <div>
+                                <a href="{{ url_for('update_task', task_id=task.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-sm btn-outline-danger">Excluir</a>
+                            </div>
+                        </div>
                     </div>
                 </li>
                 {% endfor %}
